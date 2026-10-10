@@ -1,0 +1,67 @@
+# Define the four microservices in our Bookinfo-style architecture.
+services:
+
+  # Productpage is the frontend entry point.
+  # It calls both Details and Reviews over the Docker network.
+  productpage:
+    image: nicholasjackson/fake-service:v0.26.2
+    environment:
+      NAME: productpage
+      MESSAGE: "Hello from Bookinfo Product Page"
+      SERVER_TYPE: http
+      LISTEN_ADDR: "0.0.0.0:9090"
+      UPSTREAM_URIS: "http://details:9090,http://reviews:9090"
+      UPSTREAM_WORKERS: "2"
+    ports:
+      # Mac port 9090 -> Container port 9090
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - details
+      - reviews
+    networks:
+      - bookinfo-network
+
+  # Details provides information about the book.
+  # No upstream service is required.
+  details:
+    image: nicholasjackson/fake-service:v0.26.2
+    environment:
+      NAME: details
+      MESSAGE: "Book Details"
+      SERVER_TYPE: http
+      LISTEN_ADDR: "0.0.0.0:9090"
+    networks:
+      - bookinfo-network
+
+  # Reviews handles book reviews.
+  # It makes an upstream HTTP request to Ratings.
+  reviews:
+    image: nicholasjackson/fake-service:v0.26.2
+    environment:
+      NAME: reviews
+      MESSAGE: "Book Reviews"
+      SERVER_TYPE: http
+      LISTEN_ADDR: "0.0.0.0:9090"
+      UPSTREAM_URIS: "http://ratings:9090"
+    depends_on:
+      - ratings
+    networks:
+      - bookinfo-network
+
+  # Ratings provides book rating information.
+  # No upstream service is required.
+  ratings:
+    image: nicholasjackson/fake-service:v0.26.2
+    environment:
+      NAME: ratings
+      MESSAGE: "Book Ratings"
+      SERVER_TYPE: http
+      LISTEN_ADDR: "0.0.0.0:9090"
+    networks:
+      - bookinfo-network
+
+# Docker Compose creates a private bridge network.
+# Containers resolve each other by their Compose service names.
+networks:
+  bookinfo-network:
+    driver: bridge

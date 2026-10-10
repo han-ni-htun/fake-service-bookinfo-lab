@@ -1,0 +1,20 @@
+# Downloaded executables are third-party distribution artifacts.
+fake-service
+fake-service.exe
+*.zip
+
+# Local runtime output and per-process state.
+*.log
+.run/
+
+# macOS / editor artifacts.
+.DS_Store
+.vscode/
+.idea/
+
+# Local credentials and machine-specific environment files.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
